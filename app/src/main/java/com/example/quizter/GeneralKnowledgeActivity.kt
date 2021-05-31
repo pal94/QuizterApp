@@ -4,58 +4,90 @@ import android.content.Intent
 import android.graphics.Color
 import android.graphics.Typeface
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
-import kotlinx.android.synthetic.main.activity_quiz_question.*
+import com.example.quizter.data.Question
+import com.google.gson.Gson
+import com.google.gson.JsonObject
+import kotlinx.android.synthetic.main.activity_general_knowledge.*
+import org.jetbrains.anko.doAsync
+import org.jetbrains.anko.uiThread
+import java.net.URL
 
-class QuizQuestion : AppCompatActivity(), View.OnClickListener{
 
+class GeneralKnowledgeActivity : AppCompatActivity(), View.OnClickListener {
     private var mCurrentPosition:Int = 1
-    private var mQuestionList:ArrayList<Question>? = null
+    private var mQuestionList: List<Question>? = null
+    private var mJumbledList: MutableList<String>? = null
+    private var mDisplayOptionList: MutableList<String>? = null
     private var mSelectedOptionPos:Int = 0
-    private var mCorrectAnswers :Int =0
+    private var mCorrectAnswers :Int = 0
 
+    fun addOptions(correct_answers:String, incorrectAns:ArrayList<String>): MutableList<String>{
+        val optionList:MutableList<String> = ArrayList()
+
+        optionList.add(correct_answers)
+        optionList.add(incorrectAns.get(0))
+        optionList.add(incorrectAns.get(1))
+        optionList.add(incorrectAns.get(2))
+        return optionList
+    }
+
+    private fun setOptions(listOptions:MutableList<String>):MutableList<String>{
+        listOptions.shuffle()
+
+        return listOptions
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_quiz_question)
+        setContentView(R.layout.activity_general_knowledge)
 
-        mQuestionList = Constants.getQuestions()
+        //val queue = Volley.newRequestQueue(this)
 
-        setQuestion()
+        val categroyName = intent.getStringExtra(Constants.CATEGORY_NAME);
+        val categoryId = intent.getIntExtra(Constants.CATEGORY_ID, 0)
 
+        doAsync {
+            val url:String =URL("https://opentdb.com/api.php?amount=10&category="+categoryId+"&type=multiple").readText()
+
+            uiThread {
+                Log.d("JSONDATA", "json $url")
+                val resultObject = Gson().fromJson(url, JsonObject::class.java)
+                val json = resultObject.get("results");
+                Log.d("JSONARRAY", ""+json)
+                mQuestionList = Gson().fromJson(json, Array<Question>::class.java).toList()
+                setQuestions()
+            }
+
+        }
         tv_option1.setOnClickListener(this)
         tv_option2.setOnClickListener(this)
         tv_option3.setOnClickListener(this)
         tv_option4.setOnClickListener(this)
         submit.setOnClickListener(this)
-
     }
 
-    private fun setQuestion(){
-
-        //mCurrentPosition=1
-        val question = mQuestionList!![mCurrentPosition-1]
+   private fun setQuestions(){
+        val question=mQuestionList!![mCurrentPosition-1]
 
         defaultOptions()
 
-        if(mCurrentPosition==mQuestionList!!.size){
-            submit.text="FINISH"
-        }
-        else{
-            submit.text="SUBMIT"
-        }
-
-        progressBar.progress = mCurrentPosition
-        tv_progress.text = "$mCurrentPosition" + "/" + progressBar.max
-        tv_question.text=question!!.question
-        iv_flag.setImageResource(question.image)
-        tv_option1.text=question.optionOne
-        tv_option2.text=question.optionTwo
-        tv_option3.text=question.optionThree
-        tv_option4.text=question.optionFour
+        tv_question.text=question.question
+       progressBar.progress = mCurrentPosition
+       tv_progress.text = "$mCurrentPosition" + "/" + progressBar.max
+        Log.d("OPTIONS1", "option1"+question.correct_answer)
+        mJumbledList = addOptions(question.correct_answer, question.incorrect_answers)
+       Log.d("JumbleList", ""+mJumbledList)
+        mDisplayOptionList = setOptions(mJumbledList!!)
+       Log.d("JumbleList", ""+mDisplayOptionList)
+       tv_option1.text=mDisplayOptionList!![0]
+       tv_option2.text=mDisplayOptionList!![1]
+       tv_option3.text=mDisplayOptionList!![2]
+       tv_option4.text=mDisplayOptionList!![3]
     }
 
     private fun defaultOptions(){
@@ -68,8 +100,7 @@ class QuizQuestion : AppCompatActivity(), View.OnClickListener{
         for(option in options){
             option.setTextColor((Color.parseColor("#7A8089")))
             option.typeface= Typeface.DEFAULT
-            option.background=ContextCompat.getDrawable(this, R.drawable.default_option_border_bg)
-
+            option.background= ContextCompat.getDrawable(this, R.drawable.default_option_border_bg)
         }
     }
 
@@ -90,12 +121,14 @@ class QuizQuestion : AppCompatActivity(), View.OnClickListener{
             R.id.submit->{
                 if(mSelectedOptionPos==0){
                     mCurrentPosition++
+                    Log.d("CURPOS", ""+mCurrentPosition)
+                    Log.d("SIZE", ""+mQuestionList!!.size)
                     when{
                         mCurrentPosition<= mQuestionList!!.size->{
-                            setQuestion()
+                            setQuestions()
                         }
                         else->{
-                            if(mCorrectAnswers>=3){
+                            if(mCorrectAnswers>=5){
                                 val intent = Intent(this,ResultActivity::class.java)
                                 intent.putExtra(Constants.CORRECT_ANSWER, mCorrectAnswers)
                                 intent.putExtra(Constants.TOTAL_QUESTIONS, mQuestionList!!.size)
@@ -113,12 +146,13 @@ class QuizQuestion : AppCompatActivity(), View.OnClickListener{
                 }
                 else{
                     val question = mQuestionList?.get(mCurrentPosition-1)
-                    if(question!!.correctAnswer != mSelectedOptionPos){
+                    val mCorrectAnsPos:Int = mDisplayOptionList!!.indexOf(question!!.correct_answer)+1
+                    if(mCorrectAnsPos!=mSelectedOptionPos){
                         answerView(mSelectedOptionPos, R.drawable.incorrect_option_border_bg)
                     }else{
                         mCorrectAnswers++
                     }
-                    answerView(question.correctAnswer, R.drawable.correct_option_border_bg)
+                    answerView(mCorrectAnsPos, R.drawable.correct_option_border_bg)
 
                     if(mCurrentPosition==mQuestionList!!.size){
                         submit.text="FINISH"
@@ -130,7 +164,6 @@ class QuizQuestion : AppCompatActivity(), View.OnClickListener{
             }
         }
     }
-
     private fun answerView(answer:Int, drawableView:Int){
         when(answer){
             1->{
@@ -156,6 +189,6 @@ class QuizQuestion : AppCompatActivity(), View.OnClickListener{
         tv.setTypeface(tv.typeface, Typeface.BOLD)
         tv.background=ContextCompat.getDrawable(this, R.drawable.selected_option_border_bg)
     }
-
-
 }
+
+

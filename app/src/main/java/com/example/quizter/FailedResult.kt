@@ -16,7 +16,7 @@ class FailedResult : AppCompatActivity() {
         tv_CorrectAnswer.text = "You got " + correcAns +" out of " + totalQuestion
 
         tv_finish.setOnClickListener{
-            val startActivityIntent = Intent(this, QuizQuestion::class.java)
+            val startActivityIntent = Intent(this, QuizList::class.java)
             startActivity(startActivityIntent)
         }
     }

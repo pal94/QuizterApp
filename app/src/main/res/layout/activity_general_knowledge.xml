@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fillViewport="true"
-    tools:context=".QuizQuestion">
+    tools:context=".GeneralKnowledgeActivity">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -21,20 +21,11 @@
             android:layout_height="wrap_content"
             android:layout_margin="10dp"
             android:gravity="center"
-            android:text="What country does this flag belong to?"
             android:textColor="@android:color/darker_gray"
             android:textSize="22sp">
 
         </TextView>
 
-        <ImageView
-            android:id="@+id/iv_flag"
-            android:layout_width="wrap_content"
-            android:layout_height="100dp"
-            android:layout_marginTop="16dp"
-            android:src="@drawable/germany">
-
-        </ImageView>
 
         <LinearLayout
             android:id="@+id/ll_progress_details"
@@ -50,7 +41,7 @@
                 android:layout_height="wrap_content"
                 style="?android:attr/progressBarStyleHorizontal"
                 android:layout_weight="1"
-                android:max="6"
+                android:max="10"
                 android:minHeight="50dp"
                 android:progress="0"
                 android:indeterminate="false"
@@ -127,5 +118,6 @@
             android:textStyle="bold"></Button>
 
     </LinearLayout>
+
 
 </ScrollView>
