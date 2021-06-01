@@ -7,7 +7,7 @@
     android:background="@drawable/backtheme"
     android:orientation="vertical"
     android:padding="20dp"
-    tools:context=".ResultActivity">
+    tools:context=".ui.ResultActivity">
 
     <TextView
         android:id="@+id/result"

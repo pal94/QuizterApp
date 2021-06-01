@@ -1,8 +1,10 @@
-package com.example.quizter
+package com.example.quizter.ui
 
 import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import com.example.quizter.data.Constants
+import com.example.quizter.R
 import kotlinx.android.synthetic.main.activity_result.*
 
 class FailedResult : AppCompatActivity() {

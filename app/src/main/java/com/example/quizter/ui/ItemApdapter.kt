@@ -1,9 +1,10 @@
-package com.example.quizter
+package com.example.quizter.ui
 
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.example.quizter.R
 import com.example.quizter.data.Category
 import kotlinx.android.synthetic.main.quiz_category_row.view.*
 
@@ -31,7 +32,7 @@ class ItemApdapter(val itemClickListner: OnItemClickListener, var items: List<Ca
         }
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ItemApdapter.ViewHolder {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         return ViewHolder(
             LayoutInflater.from(parent.context).inflate(
                 R.layout.quiz_category_row,

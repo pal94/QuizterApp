@@ -1,4 +1,4 @@
-package com.example.quizter
+package com.example.quizter.ui
 
 import android.content.Intent
 import android.graphics.Color
@@ -9,6 +9,8 @@ import android.view.View
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import com.example.quizter.data.Constants
+import com.example.quizter.R
 import com.example.quizter.data.Question
 import com.google.gson.Gson
 import com.google.gson.JsonObject
@@ -109,16 +111,16 @@ class GeneralKnowledgeActivity : AppCompatActivity(), View.OnClickListener {
             R.id.tv_option1 -> {
                 selectedOption(tv_option1, 1)
             }
-            R.id.tv_option2->{
+            R.id.tv_option2 ->{
                 selectedOption(tv_option2,2)
             }
-            R.id.tv_option3->{
+            R.id.tv_option3 ->{
                 selectedOption(tv_option3,3)
             }
-            R.id.tv_option4->{
+            R.id.tv_option4 ->{
                 selectedOption(tv_option4,4)
             }
-            R.id.submit->{
+            R.id.submit ->{
                 if(mSelectedOptionPos==0){
                     mCurrentPosition++
                     Log.d("CURPOS", ""+mCurrentPosition)
@@ -129,13 +131,13 @@ class GeneralKnowledgeActivity : AppCompatActivity(), View.OnClickListener {
                         }
                         else->{
                             if(mCorrectAnswers>=5){
-                                val intent = Intent(this,ResultActivity::class.java)
+                                val intent = Intent(this, ResultActivity::class.java)
                                 intent.putExtra(Constants.CORRECT_ANSWER, mCorrectAnswers)
                                 intent.putExtra(Constants.TOTAL_QUESTIONS, mQuestionList!!.size)
                                 startActivity(intent)
                             }else
                             {
-                                val intent = Intent(this,FailedResult::class.java)
+                                val intent = Intent(this, FailedResult::class.java)
                                 intent.putExtra(Constants.CORRECT_ANSWER, mCorrectAnswers)
                                 intent.putExtra(Constants.TOTAL_QUESTIONS, mQuestionList!!.size)
                                 startActivity(intent)
